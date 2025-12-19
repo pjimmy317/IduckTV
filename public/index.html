@@ -11,7 +11,7 @@
     <!-- SW 版本检测和强制更新（必须在最开头） -->
     <script data-cfasync="false">
         (function () {
-            var REQUIRED_SW_VERSION = 'v17';
+            var REQUIRED_SW_VERSION = 'v18';
             var STORAGE_KEY = 'sw_cleared_' + REQUIRED_SW_VERSION;
 
             // 如果已经为这个版本清理过，不再重复
@@ -24,7 +24,7 @@
                     .then(function (text) {
                         var match = text.match(/CACHE_VERSION\s*=\s*['"]([^'"]+)['"]/);
                         var serverVersion = match ? match[1] : 'unknown';
-                        console.log('[SW Check] Server version:', serverVersion);
+                        // var serverVersion logged for debug
 
                         // 如果服务器版本是最新的，检查本地 SW
                         if (serverVersion === REQUIRED_SW_VERSION) {
@@ -41,7 +41,7 @@
                             caches.keys().then(function (names) {
                                 names.forEach(function (name) {
                                     if (name.indexOf(REQUIRED_SW_VERSION) === -1) {
-                                        console.log('[SW Check] Deleting old cache:', name);
+                                        // console.log('[SW Check] Deleting old cache:', name);
                                         caches.delete(name);
                                     }
                                 });
@@ -51,7 +51,7 @@
                             try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) { }
                         }
                     })
-                    .catch(function (e) { console.log('[SW Check] Error:', e); });
+                    .catch(function (e) { /* SW Check error handled silently */ });
             }
         })();
     </script>
@@ -5081,38 +5081,27 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
                     .then(reg => {
-                        console.log('[SW] Registered:', reg.scope);
-
                         // 立即检查更新
                         reg.update();
 
                         // 定期检查更新（每30分钟）
-                        setInterval(() => {
-                            reg.update();
-                            console.log('[SW] Checking for updates...');
-                        }, 30 * 60 * 1000);
+                        setInterval(() => reg.update(), 30 * 60 * 1000);
 
                         // 监听新版本安装
                         reg.addEventListener('updatefound', () => {
                             const newWorker = reg.installing;
-                            console.log('[SW] New version found, installing...');
-
                             newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // 新版本已安装，提示用户刷新
-                                    console.log('[SW] New version ready, will refresh...');
-                                }
+                                // 新版本已安装，等待激活
                             });
                         });
                     })
-                    .catch(err => console.log('[SW] Registration failed:', err));
+                    .catch(() => { });
 
                 // 当新 SW 激活时自动刷新页面（防止无限循环）
                 let swRefreshing = false;
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
                     if (swRefreshing) return;
                     swRefreshing = true;
-                    console.log('[SW] Controller changed, refreshing...');
                     window.location.reload();
                 });
             });

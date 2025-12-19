@@ -392,11 +392,29 @@ docker run -d -p 3000:3000 \
 
 ### ▲ Vercel 部署
 适合零成本快速上线。
-*注意：部署完成后，请务必在 Vercel 控制台的 **Settings -> Environment Variables** 中添加 `TMDB_API_KEY`。*
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fednovas%2FdongguaTV&env=TMDB_API_KEY,ACCESS_PASSWORD,TMDB_PROXY_URL,REMOTE_DB_URL)
 
 *(请确保先将本项目fork到您自己的 GitHub 仓库，点击上方按钮即可一键导入部署)*
+
+#### ⚠️ Vercel 环境变量配置注意事项
+
+在 Vercel 部署后，**必须正确配置环境变量**才能使用：
+
+1. **Settings → Environment Variables** 中添加以下变量：
+   - `TMDB_API_KEY` - TMDb API 密钥（必填）
+   - `ACCESS_PASSWORD` - 访问密码（可选）
+   - `TMDB_PROXY_URL` - 大陆用户反代地址（可选）
+   - `REMOTE_DB_URL` - 远程配置地址（可选）
+
+2. **环境变量不生效？** 请检查以下几点：
+   - ✅ 确保变量名**完全正确**（区分大小写）
+   - ✅ 确保选择了正确的 **Environment**（Production / Preview / Development）
+   - ✅ **添加环境变量后必须重新部署**：进入 Deployments 页面，点击最新部署的 `...` 菜单，选择 **Redeploy**
+   - ✅ 如果使用了 Git 分支部署，确保变量应用于对应的分支
+
+3. **验证环境变量是否生效**：
+   访问 `https://your-domain.vercel.app/api/config`，检查返回的 JSON 中 `tmdb_api_key` 是否有值。
 
 ### 🖥️ Linux 服务器命令行部署 (PM2)
 适合常规 VPS (Ubuntu/CentOS/Debian)。

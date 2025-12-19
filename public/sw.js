@@ -1,6 +1,6 @@
 // Service Worker with Image Caching for dongguaTV
-// v17: Fixed infinite refresh loop
-const CACHE_VERSION = 'v17';
+// v18: Cleaned up debug logs
+const CACHE_VERSION = 'v18';
 const STATIC_CACHE = 'donggua-static-' + CACHE_VERSION;
 const IMAGE_CACHE = 'donggua-images-' + CACHE_VERSION;
 
@@ -30,11 +30,11 @@ const IMAGE_HOSTS = [
 const MAX_IMAGE_CACHE = 500;
 
 self.addEventListener('install', event => {
-    console.log('[SW] Installing v12...');
+    // console.log('[SW] Installing v17...');
     event.waitUntil(
         caches.open(STATIC_CACHE)
             .then(cache => {
-                console.log('[SW] Caching static assets');
+                // console.log('[SW] Caching static assets');
                 return cache.addAll(STATIC_URLS);
             })
     );
@@ -43,14 +43,14 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-    console.log('[SW] Activating v12...');
+    // console.log('[SW] Activating v17...');
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
                     // 删除所有旧版本缓存
                     if (cacheName !== STATIC_CACHE && cacheName !== IMAGE_CACHE) {
-                        console.log('[SW] Deleting old cache:', cacheName);
+                        // console.log('[SW] Deleting old cache:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
@@ -134,7 +134,7 @@ async function handleImageRequest(request) {
     // 1. 尝试从缓存获取
     const cached = await cache.match(request);
     if (cached) {
-        console.log('[SW] Image from cache:', request.url.substring(0, 60) + '...');
+        // console.log('[SW] Image from cache:', request.url.substring(0, 60) + '...');
         return cached;
     }
 
@@ -146,11 +146,11 @@ async function handleImageRequest(request) {
             cache.put(request, response.clone());
             // 清理过多的缓存
             trimImageCache(cache);
-            console.log('[SW] Image cached:', request.url.substring(0, 60) + '...');
+            // console.log('[SW] Image cached:', request.url.substring(0, 60) + '...');
         }
         return response;
     } catch (error) {
-        console.error('[SW] Image fetch failed:', error);
+        // console.error('[SW] Image fetch failed:', error);
         // 返回占位图
         return new Response(
             '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450"><rect fill="#333" width="300" height="450"/><text fill="#666" x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="16">加载失败</text></svg>',
@@ -165,7 +165,7 @@ async function trimImageCache(cache) {
     if (keys.length > MAX_IMAGE_CACHE) {
         // 删除最早的缓存（FIFO）
         const deleteCount = keys.length - MAX_IMAGE_CACHE;
-        console.log(`[SW] Trimming ${deleteCount} old cached images`);
+        // console.log(`[SW] Trimming ${deleteCount} old cached images`);
         for (let i = 0; i < deleteCount; i++) {
             await cache.delete(keys[i]);
         }
