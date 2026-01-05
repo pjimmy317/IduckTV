@@ -5131,7 +5131,7 @@
 
                                         const html = `
                                             <div class="dplayer-setting-skip-group" style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 5px; padding-top: 5px;">
-                                                <div class="dplayer-setting-item dplayer-setting-skip-toggle">
+                                                <div class="dplayer-setting-item dplayer-setting-skip-toggle" style="cursor: pointer;">
                                                     <span class="dplayer-label">跳过片头片尾</span>
                                                     <div class="dplayer-toggle">
                                                         <input class="dplayer-toggle-setting-input" type="checkbox" ${this.config.enabled ? 'checked' : ''}>
@@ -5146,8 +5146,8 @@
                                                     <span class="dplayer-label">设置片尾</span>
                                                     <span class="dplayer-value outro-val" style="opacity: 0.8;">${this.formatTime(this.config.outro)}</span>
                                                 </div>
-                                                 <div class="dplayer-setting-item dplayer-setting-del-config" style="cursor: pointer; color: #888; font-size: 12px; justify-content: center; height: 30px; margin-top: 0;">
-                                                    <i class="fas fa-trash-alt" style="margin-right:5px;"></i> 清除配置
+                                                 <div class="dplayer-setting-item dplayer-setting-del-config" style="cursor: pointer; color: #888; font-size: 12px; height: 32px; display: flex; align-items: center; padding: 0 10px; margin-top: 0;">
+                                                    <i class="fas fa-trash-alt" style="margin-right:8px;"></i> 清除配置
                                                 </div>
                                             </div>
                                         `;
@@ -5156,11 +5156,24 @@
                                         // 绑定事件
                                         const group = panel.querySelector('.dplayer-setting-skip-group');
 
-                                        // Toggle
-                                        group.querySelector('.dplayer-setting-skip-toggle input').addEventListener('change', (e) => {
+                                        // Toggle Logic
+                                        const toggleRow = group.querySelector('.dplayer-setting-skip-toggle');
+                                        const toggleInput = toggleRow.querySelector('input');
+
+                                        // Change event (Actual logic)
+                                        toggleInput.addEventListener('change', (e) => {
                                             this.config.enabled = e.target.checked;
                                             this.save();
                                             dp.notice(this.config.enabled ? '已开启跳过功能' : '已关闭跳过功能');
+                                        });
+
+                                        // Click row to toggle
+                                        toggleRow.addEventListener('click', (e) => {
+                                            // 允许点击整行触发
+                                            if (e.target !== toggleInput && !e.target.classList.contains('dplayer-toggle-setting-icon')) {
+                                                toggleInput.checked = !toggleInput.checked;
+                                                toggleInput.dispatchEvent(new Event('change'));
+                                            }
                                         });
 
                                         // Set Intro
