@@ -1,9 +1,9 @@
 ﻿{
-    "appId": "com.ednovas.donguatv",
-    "appName": "E视界",
+    "appId": "com.ednovas.ducktv",
+    "appName": "DuckTV",
     "webDir": "public",
     "server": {
-        "url": "https://ednovas.video",
+        "url": "https://tv.003317.xyz",
         "cleartext": true
     },
     "plugins": {
@@ -14,4 +14,5 @@
         },
         "ScreenOrientation": {}
     }
+
 }
